@@ -1,0 +1,6 @@
+queue_aar.c:34:6:create_queue	8	static
+queue_aar.c:72:5:isFull	0	static
+queue_aar.c:76:5:isEmpty	0	static
+queue_aar.c:82:5:enqueue	16	static
+queue_aar.c:102:5:dequeue	8	static
+queue_aar.c:121:6:flush	0	static

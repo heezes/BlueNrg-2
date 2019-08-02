@@ -1,0 +1,3 @@
+misc.c:87:6:NVIC_Init	24	static
+misc.c:116:6:SystemSleepCmd	8	static
+misc.c:131:6:SysTick_State	8	static

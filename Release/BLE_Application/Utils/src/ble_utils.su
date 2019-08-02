@@ -1,0 +1,2 @@
+ble_utils.c:83:14:round_to_x	16	static
+ble_utils.c:98:9:GET_Master_Slave_device_connection_parameters	32	static

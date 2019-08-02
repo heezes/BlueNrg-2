@@ -1,0 +1,8 @@
+hal_radio.c:26:16:CondRoutineTrue	0	static
+hal_radio.c:31:16:dataRoutineNull	0	static
+hal_radio.c:36:16:CondRoutineRxTrue	0	static
+hal_radio.c:60:9:HAL_RADIO_SetNetworkID	0	static
+hal_radio.c:80:9:HAL_RADIO_SendPacket	48	static
+hal_radio.c:135:9:HAL_RADIO_SendPacketWithAck	48	static
+hal_radio.c:203:9:HAL_RADIO_ReceivePacket	48	static
+hal_radio.c:261:9:HAL_RADIO_ReceivePacketWithAck	48	static

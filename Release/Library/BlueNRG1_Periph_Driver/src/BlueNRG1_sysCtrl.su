@@ -1,0 +1,5 @@
+BlueNRG1_sysCtrl.c:100:6:SysCtrl_DeInit	0	static
+BlueNRG1_sysCtrl.c:132:6:SysCtrl_PeripheralClockCmd	16	static
+BlueNRG1_sysCtrl.c:151:19:SysCtrl_GetWakeupResetReason	0	static
+BlueNRG1_sysCtrl.c:223:6:SysCtrl_WakeupFromIo	16	static
+BlueNRG1_sysCtrl.c:253:6:SysCtrl_SelectXO	8	static

@@ -1,0 +1,4 @@
+ble_service_bms.c:13:13:BLE_DiagnosticMsgCallback	0	static
+ble_service_bms.c:21:8:BLE_NotifyConnection	24	static
+ble_service_bms.c:40:8:BLE_DiagnosticRequest	16	static
+ble_service_bms.c:58:5:BLE_DataProcess	528	static

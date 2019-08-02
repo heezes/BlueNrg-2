@@ -1,0 +1,8 @@
+uart_interface.c:38:6:HAL_uart_RxCallback	8	static
+uart_interface.c:45:6:HAL_uart_ErrorCallback	0	static
+uart_interface.c:59:6:UART_Initialize	8	static
+uart_interface.c:66:6:UART_DeInitialize	0	static
+uart_interface.c:71:5:UART_Send	8	static
+uart_interface.c:76:5:UART_SendNonBlocking	8	static
+uart_interface.c:89:5:UART_Receive	8	static
+uart_interface.c:94:5:UART_StartReceiveNonBlocking	8	static

@@ -1,0 +1,2 @@
+ble_packet.c:31:8:BLE_SendPkt	16	static
+ble_packet.c:47:5:BLE_GetPkt	40	static
