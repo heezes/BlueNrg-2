@@ -16,6 +16,7 @@
 #include "string.h"
 #include "math.h"
 
+
 /* Discoverable */
 #define TEMP_OFFSET 8
 uint8_t g_advData[] = {0x02,0x01,0x06,0x06,AD_TYPE_MANUFACTURER_SPECIFIC_DATA,0x30,0x00,0x05,0xFF,0xFF,0xFF,0xFF};
@@ -439,7 +440,7 @@ void hci_le_connection_complete_event(uint8_t Status,
 	uint8_t temp[6] = {0};
 	memcpy(temp, (int*)&g_sentAuthToken, 4);
     aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[AUTH_ACK_REQ], 0x01, AUTH_ACK_LEN, 0, sizeof(int), temp);
-	aci_l2cap_connection_parameter_update_req(g_connectionHandle, 0x28, 0x28, 0x00, 20);
+	//aci_l2cap_connection_parameter_update_req(g_connectionHandle, 0x28, 0x28, 0x00, 20);
 }
 
 void hci_disconnection_complete_event(uint8_t Status, uint16_t Connection_Handle, uint8_t Reason)

@@ -55,7 +55,7 @@
 									<listOptionValue builtIn="false" value="BLE_STACK_CONFIGURATION=BLE_STACK_FULL_CONFIGURATION"/>
 									<listOptionValue builtIn="false" value="SENSOR_EMULATION"/>
 									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))"/>
-									<listOptionValue builtIn="false" value="BLE_DEBUG=1"/>
+									<listOptionValue builtIn="false" value="BLE_DEBUG=0"/>
 									<listOptionValue builtIn="false" value="BMS=1"/>
 									<listOptionValue builtIn="false" value="BLUENRG2_DEVICE"/>
 									<listOptionValue builtIn="false" value="HS_SPEED_XTAL=HS_SPEED_XTAL_32MHZ"/>
