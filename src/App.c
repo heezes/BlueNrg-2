@@ -68,7 +68,7 @@ uint8_t g_advData[] = {0x02,0x01,0x06,0x06,AD_TYPE_MANUFACTURER_SPECIFIC_DATA,0x
 /*Private TypeDef*/
 struct timer g_SoftTim[2];
 
-volatile uint8_t g_connected = 0;
+volatile uint8_t g_deviceState = 0;
 volatile uint16_t g_connectionHandle = 0;
 volatile int g_sentAuthToken = 0;
 volatile int g_peerAuthenticated = 0;
@@ -323,7 +323,7 @@ void App_Init(void)
 
 void App_Process(void)
 {
-	switch(g_connected)
+	switch(g_deviceState)
 	{
 		case BLE_CONNECT_NOTIFY:
 		{
@@ -334,7 +334,7 @@ void App_Process(void)
 			aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[AUTH_ACK_REQ], 0x01, AUTH_ACK_LEN, 0, sizeof(int), temp);
 			aci_l2cap_connection_parameter_update_req(g_connectionHandle, 0x0006, 0x0006, 0, 150);
 			__disable_irq();
-			g_connected = BLE_CONNECTED;
+			g_deviceState = BLE_CONNECTED;
 			__enable_irq();
 			break;
 		}
@@ -393,7 +393,7 @@ void App_Process(void)
 		{
 			BLE_NotifyConnection(0);
 			__disable_irq();
-			g_connected = BLE_DISCONNECTED;
+			g_deviceState = BLE_DISCONNECTED;
 			__enable_irq();
 			break;
 		}
@@ -404,7 +404,7 @@ void App_Process(void)
 		iprintf("Setting Connectable\r\n");
 #endif
 			__disable_irq();
-			g_connected = BLE_ADVERTISING;
+			g_deviceState = BLE_ADVERTISING;
 			__enable_irq();
 			break;
 		}
@@ -412,14 +412,15 @@ void App_Process(void)
 		{
 			BLE_DiagnosticRequest();
 			__disable_irq();
-			g_connected = BLE_CONNECTED;
+			g_deviceState = BLE_CONNECTED;
 			__enable_irq();
 			break;
 		}
 		default:
 			break;
 	}
-	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_connected == BLE_CONNECTED) && (!g_peerAuthenticated))
+	//Checks if the Auth timeout has occurred
+	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_deviceState == BLE_CONNECTED) && (!g_peerAuthenticated))
 	{
 		hci_disconnect(g_connectionHandle, 0x05);
     }
@@ -441,9 +442,11 @@ void hci_le_connection_complete_event(uint8_t Status,
 	iprintf("Conn Interval:%u Conn Latency:%u Supervision Timeout:%u \n",Conn_Interval,Conn_Latency,Supervision_Timeout);
 #endif
 	g_connectionHandle = Connection_Handle;
-	g_connected = BLE_CONNECT_NOTIFY;
+	g_deviceState = BLE_CONNECT_NOTIFY;
 }
-
+/*
+ * BLE Disconnect Event
+ * */
 void hci_disconnection_complete_event(uint8_t Status, uint16_t Connection_Handle, uint8_t Reason)
 {
 #if BLE_DEBUG
@@ -452,10 +455,12 @@ void hci_disconnection_complete_event(uint8_t Status, uint16_t Connection_Handle
 	else
 		iprintf("Disconnection Reason:%u\n", Reason);
 #endif
-	g_connected = BLE_DISCONNECT_NOTIFY;
+	g_deviceState = BLE_DISCONNECT_NOTIFY;
 	g_peerAuthenticated = 0;
 }
-
+/*
+ * This callback is triggered when any data is written to a characteristic by central.
+ * */
 void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
                                        uint16_t Attr_Handle,
                                        uint16_t Offset,
@@ -481,7 +486,7 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
 		}
 		if(Attr_Data[4] == 2)
 		{
-			g_connected = BLE_DIAGNOSTIC_REQ;
+			g_deviceState = BLE_DIAGNOSTIC_REQ;
 #if BLE_DEBUG
       iprintf("Diagnostic Requested\n");
 #endif
@@ -495,7 +500,7 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
  * */
 void BLE_DiagnosticMsgCallback(uint8_t state)
 {
-	if (g_connected == 1)
+	if (g_deviceState == 1)
 	{
 	#if BLE_DEBUG
 			iprintf("Diagnostics Request: %s\n", (state == 1)? "Accepted":"Denied");

@@ -2,7 +2,7 @@ App.c:103:12:AddService	304	static
 App.c:92:6:convertVoltages	16	static
 App.c:300:6:App_Init	80	static
 App.c:324:6:App_Process	232	static
-App.c:430:6:hci_le_connection_complete_event	0	static
-App.c:447:6:hci_disconnection_complete_event	0	static
-App.c:459:6:aci_gatt_attribute_modified_event	0	static
-App.c:496:6:BLE_DiagnosticMsgCallback	32	static
+App.c:431:6:hci_le_connection_complete_event	0	static
+App.c:450:6:hci_disconnection_complete_event	0	static
+App.c:464:6:aci_gatt_attribute_modified_event	0	static
+App.c:501:6:BLE_DiagnosticMsgCallback	32	static

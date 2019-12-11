@@ -43,9 +43,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  19 .debug_line   000059db  00000000  00000000  00058b30  2**0
                   CONTENTS, READONLY, DEBUGGING
- 20 .debug_str    000063d5  00000000  00000000  0005e50b  2**0
+ 20 .debug_str    000063d7  00000000  00000000  0005e50b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 21 .comment      000153be  00000000  00000000  000648e0  2**0
+ 21 .comment      000153be  00000000  00000000  000648e2  2**0
                   CONTENTS, READONLY
  22 .arm_vfe_header 000000d4  00000000  00000000  00079ca0  2**2
                   CONTENTS, READONLY
@@ -10002,11 +10002,11 @@ void App_Init(void)
 void App_Process(void)
 {
 10043b14:	b5f0      	push	{r4, r5, r6, r7, lr}
-	switch(g_connected)
+	switch(g_deviceState)
 10043b16:	4dc6      	ldr	r5, [pc, #792]	; (10043e30 <App_Process+0x31c>)
 {
 10043b18:	b0b5      	sub	sp, #212	; 0xd4
-	switch(g_connected)
+	switch(g_deviceState)
 10043b1a:	7828      	ldrb	r0, [r5, #0]
 10043b1c:	3801      	subs	r0, #1
 10043b1e:	2804      	cmp	r0, #4
@@ -10072,7 +10072,7 @@ void App_Process(void)
 		{
 			BLE_DiagnosticRequest();
 			__disable_irq();
-			g_connected = BLE_CONNECTED;
+			g_deviceState = BLE_CONNECTED;
 10043b86:	2302      	movs	r3, #2
 10043b88:	e12e      	b.n	10043de8 <App_Process+0x2d4>
 			BmsPackState_t 		BleBuff	= {0};
@@ -10208,12 +10208,12 @@ void App_Process(void)
 10043c7c:	3b01      	subs	r3, #1
 				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[AH_MAX_MIN_VOLT], 0x01, AH_MAX_MIN_VOLT_LEN, 0, AH_MAX_MIN_VOLT_LEN, tempData);
 10043c7e:	f000 fbf3 	bl	10044468 <aci_gatt_update_char_value_ext>
-			break;
 		}
 		default:
 			break;
 	}
-	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_connected == BLE_CONNECTED) && (!g_peerAuthenticated))
+	//Checks if the Auth timeout has occurred
+	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_deviceState == BLE_CONNECTED) && (!g_peerAuthenticated))
 10043c82:	486c      	ldr	r0, [pc, #432]	; (10043e34 <App_Process+0x320>)
 10043c84:	f000 f9e9 	bl	1004405a <Timer_Expired>
 10043c88:	2800      	cmp	r0, #0
@@ -10409,9 +10409,9 @@ void App_Process(void)
 10043dde:	2000      	movs	r0, #0
 10043de0:	f7ff fc05 	bl	100435ee <BLE_NotifyConnection>
 10043de4:	b672      	cpsid	i
-			g_connected = BLE_DISCONNECTED;
+			g_deviceState = BLE_DISCONNECTED;
 10043de6:	2304      	movs	r3, #4
-			g_connected = BLE_CONNECTED;
+			g_deviceState = BLE_CONNECTED;
 10043de8:	702b      	strb	r3, [r5, #0]
 10043dea:	e01b      	b.n	10043e24 <App_Process+0x310>
 	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B','M','S','-','6'};
@@ -10443,7 +10443,7 @@ void App_Process(void)
 10043e1a:	0020      	movs	r0, r4
 10043e1c:	f000 fab2 	bl	10044384 <aci_gap_set_discoverable>
 10043e20:	b672      	cpsid	i
-			g_connected = BLE_ADVERTISING;
+			g_deviceState = BLE_ADVERTISING;
 10043e22:	702c      	strb	r4, [r5, #0]
   __ASM volatile ("cpsie i");
 10043e24:	b662      	cpsie	i
@@ -10452,10 +10452,10 @@ void App_Process(void)
 10043e28:	f7ff fbf6 	bl	10043618 <BLE_DiagnosticRequest>
 10043e2c:	e6aa      	b.n	10043b84 <App_Process+0x70>
 10043e2e:	46c0      	nop			; (mov r8, r8)
-10043e30:	20000362 	.word	0x20000362
+10043e30:	20000364 	.word	0x20000364
 10043e34:	200004f0 	.word	0x200004f0
 10043e38:	2000036c 	.word	0x2000036c
-10043e3c:	20000364 	.word	0x20000364
+10043e3c:	20000362 	.word	0x20000362
 10043e40:	2000034a 	.word	0x2000034a
 10043e44:	20000500 	.word	0x20000500
 10043e48:	20000368 	.word	0x20000368
@@ -10468,18 +10468,18 @@ void App_Process(void)
 	iprintf("Conn Interval:%u Conn Latency:%u Supervision Timeout:%u \n",Conn_Interval,Conn_Latency,Supervision_Timeout);
 #endif
 	g_connectionHandle = Connection_Handle;
-	g_connected = BLE_CONNECT_NOTIFY;
+	g_deviceState = BLE_CONNECT_NOTIFY;
 10043e54:	2201      	movs	r2, #1
 	g_connectionHandle = Connection_Handle;
 10043e56:	4b02      	ldr	r3, [pc, #8]	; (10043e60 <hci_le_connection_complete_event+0xc>)
 10043e58:	8019      	strh	r1, [r3, #0]
-	g_connected = BLE_CONNECT_NOTIFY;
+	g_deviceState = BLE_CONNECT_NOTIFY;
 10043e5a:	4b02      	ldr	r3, [pc, #8]	; (10043e64 <hci_le_connection_complete_event+0x10>)
 10043e5c:	701a      	strb	r2, [r3, #0]
 }
 10043e5e:	4770      	bx	lr
-10043e60:	20000364 	.word	0x20000364
-10043e64:	20000362 	.word	0x20000362
+10043e60:	20000362 	.word	0x20000362
+10043e64:	20000364 	.word	0x20000364
 
 10043e68 <hci_disconnection_complete_event>:
 	if(Reason == 19)
@@ -10487,7 +10487,7 @@ void App_Process(void)
 	else
 		iprintf("Disconnection Reason:%u\n", Reason);
 #endif
-	g_connected = BLE_DISCONNECT_NOTIFY;
+	g_deviceState = BLE_DISCONNECT_NOTIFY;
 10043e68:	2203      	movs	r2, #3
 10043e6a:	4b03      	ldr	r3, [pc, #12]	; (10043e78 <hci_disconnection_complete_event+0x10>)
 10043e6c:	701a      	strb	r2, [r3, #0]
@@ -10498,7 +10498,7 @@ void App_Process(void)
 }
 10043e74:	4770      	bx	lr
 10043e76:	46c0      	nop			; (mov r8, r8)
-10043e78:	20000362 	.word	0x20000362
+10043e78:	20000364 	.word	0x20000364
 10043e7c:	20000368 	.word	0x20000368
 
 10043e80 <aci_gatt_attribute_modified_event>:
@@ -10549,7 +10549,7 @@ void App_Process(void)
 10043eae:	2b02      	cmp	r3, #2
 10043eb0:	d102      	bne.n	10043eb8 <aci_gatt_attribute_modified_event+0x38>
 		{
-			g_connected = BLE_DIAGNOSTIC_REQ;
+			g_deviceState = BLE_DIAGNOSTIC_REQ;
 10043eb2:	2205      	movs	r2, #5
 10043eb4:	4b04      	ldr	r3, [pc, #16]	; (10043ec8 <aci_gatt_attribute_modified_event+0x48>)
 10043eb6:	701a      	strb	r2, [r3, #0]
@@ -10564,7 +10564,7 @@ void App_Process(void)
 10043ebc:	2000034a 	.word	0x2000034a
 10043ec0:	00000537 	.word	0x00000537
 10043ec4:	20000368 	.word	0x20000368
-10043ec8:	20000362 	.word	0x20000362
+10043ec8:	20000364 	.word	0x20000364
 
 10043ecc <BLE_DiagnosticMsgCallback>:
 /*
@@ -10575,19 +10575,19 @@ void BLE_DiagnosticMsgCallback(uint8_t state)
 {
 10043ecc:	b510      	push	{r4, lr}
 10043ece:	2417      	movs	r4, #23
-	if (g_connected == 1)
+	if (g_deviceState == 1)
 10043ed0:	4b0c      	ldr	r3, [pc, #48]	; (10043f04 <BLE_DiagnosticMsgCallback+0x38>)
 {
 10043ed2:	b086      	sub	sp, #24
-	if (g_connected == 1)
+	if (g_deviceState == 1)
 10043ed4:	781b      	ldrb	r3, [r3, #0]
 {
 10043ed6:	446c      	add	r4, sp
-	if (g_connected == 1)
+	if (g_deviceState == 1)
 10043ed8:	b2db      	uxtb	r3, r3
 {
 10043eda:	7020      	strb	r0, [r4, #0]
-	if (g_connected == 1)
+	if (g_deviceState == 1)
 10043edc:	2b01      	cmp	r3, #1
 10043ede:	d10e      	bne.n	10043efe <BLE_DiagnosticMsgCallback+0x32>
 	{
@@ -10614,8 +10614,8 @@ void BLE_DiagnosticMsgCallback(uint8_t state)
 10043efe:	b006      	add	sp, #24
 10043f00:	bd10      	pop	{r4, pc}
 10043f02:	46c0      	nop			; (mov r8, r8)
-10043f04:	20000362 	.word	0x20000362
-10043f08:	20000364 	.word	0x20000364
+10043f04:	20000364 	.word	0x20000364
+10043f08:	20000362 	.word	0x20000362
 10043f0c:	20000500 	.word	0x20000500
 10043f10:	2000034a 	.word	0x2000034a
 

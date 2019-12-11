@@ -5168,14 +5168,13 @@ END GROUP
  .bss.g_DiagnosticGroup
                 0x2000035a        0x8 src\App.o
                 0x2000035a                g_DiagnosticGroup
- .bss.g_connected
-                0x20000362        0x1 src\App.o
-                0x20000362                g_connected
- *fill*         0x20000363        0x1 
  .bss.g_connectionHandle
-                0x20000364        0x2 src\App.o
-                0x20000364                g_connectionHandle
- *fill*         0x20000366        0x2 
+                0x20000362        0x2 src\App.o
+                0x20000362                g_connectionHandle
+ .bss.g_deviceState
+                0x20000364        0x1 src\App.o
+                0x20000364                g_deviceState
+ *fill*         0x20000365        0x3 
  .bss.g_peerAuthenticated
                 0x20000368        0x4 src\App.o
                 0x20000368                g_peerAuthenticated
@@ -5639,7 +5638,7 @@ OUTPUT(BlueNrg-M2SP.elf elf32-littlearm)
  .debug_line    0x0000551e      0x268 utils\src\queue.o
  .debug_line    0x00005786      0x255 utils\src\rsa_ed.o
 
-.debug_str      0x00000000     0x63d5
+.debug_str      0x00000000     0x63d7
  .debug_str     0x00000000     0x1ffe Bluetooth_LE\src\stack_user_cfg.o
                                0x20ac (size before relaxing)
  .debug_str     0x00001ffe      0x6f1 Library\BlueNRG1_Periph_Driver\src\BlueNRG1_dma.o
@@ -5676,19 +5675,19 @@ OUTPUT(BlueNrg-M2SP.elf elf32-littlearm)
                                 0x9a6 (size before relaxing)
  .debug_str     0x00005aa3      0x157 ble-sdk\src\com.o
                                 0x790 (size before relaxing)
- .debug_str     0x00005bfa      0x431 src\App.o
-                               0x10ef (size before relaxing)
- .debug_str     0x0000602b       0x1d src\BlueNRG1_it.o
+ .debug_str     0x00005bfa      0x433 src\App.o
+                               0x10f1 (size before relaxing)
+ .debug_str     0x0000602d       0x1d src\BlueNRG1_it.o
                                 0x96d (size before relaxing)
- .debug_str     0x00006048      0x214 src\main.o
+ .debug_str     0x0000604a      0x214 src\main.o
                                 0xb28 (size before relaxing)
- .debug_str     0x0000625c       0x2a src\uart_interface.o
+ .debug_str     0x0000625e       0x2a src\uart_interface.o
                                 0xa04 (size before relaxing)
- .debug_str     0x00006286       0x50 utils\src\gp_timer.o
+ .debug_str     0x00006288       0x50 utils\src\gp_timer.o
                                 0x20a (size before relaxing)
- .debug_str     0x000062d6       0x37 utils\src\queue.o
+ .debug_str     0x000062d8       0x37 utils\src\queue.o
                                 0x65d (size before relaxing)
- .debug_str     0x0000630d       0xc8 utils\src\rsa_ed.o
+ .debug_str     0x0000630f       0xc8 utils\src\rsa_ed.o
                                 0x24e (size before relaxing)
 
 .comment        0x00000000    0x153be
@@ -8181,8 +8180,8 @@ g_UartBuffer                                      src\uart_interface.o
                                                   ble-sdk\src\ble_packet.o
 g_UartQueue                                       ble-sdk\src\com.o
 g_advData                                         src\App.o
-g_connected                                       src\App.o
 g_connectionHandle                                src\App.o
+g_deviceState                                     src\App.o
 g_peerAuthenticated                               src\App.o
 g_sentAuthToken                                   src\App.o
 g_var_LinkPerp                                    ../Bluetooth_LE/library\libbluenrg1_stack.a(ll_isr.o)
