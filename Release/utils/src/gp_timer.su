@@ -1,5 +1,6 @@
-gp_timer.c:38:6:Timer_Set	8	static
-gp_timer.c:43:6:Timer_Reset	0	static
-gp_timer.c:47:6:Timer_Restart	8	static
-gp_timer.c:51:9:Timer_Expired	8	static
-gp_timer.c:56:12:Timer_Remaining	8	static
+gp_timer.c:37:6:Timer_Set	8	static
+gp_timer.c:49:6:Timer_Reset	0	static
+gp_timer.c:59:6:Timer_Restart	8	static
+gp_timer.c:69:9:Timer_Expired	8	static
+gp_timer.c:80:12:Timer_Remaining	16	static
+gp_timer.c:90:6:Timer_Delay	16	static

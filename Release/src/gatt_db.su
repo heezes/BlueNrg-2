@@ -1,2 +1,0 @@
-gatt_db.c:39:12:Add_RC_Service	80	static
-gatt_db.c:76:6:Attribute_Modified_CB	8	static

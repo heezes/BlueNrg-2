@@ -38,7 +38,7 @@ SOFTWARE.
 #include "MCAL.h"
 #include "ble_const.h"
 #include "bluenrg1_stack.h"
-#include "VIM_config.h"
+#include "bms_config.h"
 #include "sleep.h"
 #include "App.h"
 /* Private typedef */

@@ -33,5 +33,12 @@ void App_Process(void);
 #define PRIME_NO_1	11
 #define PRIME_NO_2	7919
 
+/*BLE State*/
+#define BLE_ADVERTISING             0
+#define BLE_CONNECT_NOTIFY			1
+#define BLE_CONNECTED				2
+#define BLE_DISCONNECT_NOTIFY		3
+#define BLE_DISCONNECTED			4
+#define BLE_DIAGNOSTIC_REQ			5
 
 #endif /* APP_H_ */

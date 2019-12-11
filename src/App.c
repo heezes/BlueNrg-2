@@ -49,8 +49,9 @@ uint8_t g_advData[] = {0x02,0x01,0x06,0x06,AD_TYPE_MANUFACTURER_SPECIFIC_DATA,0x
 #define  AH_MAX_MIN_VOLT	  3 /*Contains CumulativeAhSpent, MinimumCellVoltageEver, MaximumCellVoltageEver*/
 
 /*DATA CHARACTERISTIC LEN*/
-#define SOC_CUR_TEMP_LEN			9
-#define BATT_VOLT_LEN				NO_OF_CELLS
+#define TEMP_SENSOR_LEN 			2*THERM_COUNT
+#define SOC_CUR_TEMP_LEN			(7+(TEMP_SENSOR_LEN))
+#define BATT_VOLT_LEN				CELL_COUNT
 #define CELL_BAL_MOSFET_OC_LEN		3
 #define RANGE_LEN					2
 #define BATTERY_ID_LEN				20 /*20 Bytes max characteristic len*/
@@ -90,7 +91,7 @@ uint16_t g_DiagnosticGroup[4] = {0};
  * */
 void convertVoltages(uint16_t *inVoltage, uint8_t *outVoltage)
 {
-	for(int i = 0; i<NO_OF_CELLS; i++)
+	for(int i = 0; i<CELL_COUNT; i++)
 	{
 		float voltage = (inVoltage[i]/10.0);
 		outVoltage[i] = (uint8_t)(voltage - 200U);
@@ -272,20 +273,6 @@ static int Device_Init(void)
 	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
 	ret = aci_gatt_update_char_value_ext(0,Service_Handle, Dev_Name_Char_Handle,0,(uint16_t)strlen((char*)DeviceName),0, (uint8_t)strlen((char*)DeviceName), DeviceName);
 	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
-/*
-	 ret = aci_gap_set_io_capability(IO_CAP_NO_INPUT_NO_OUTPUT);
-	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
-	ret = aci_gap_set_authentication_requirement(NO_BONDING,
-	                                               MITM_PROTECTION_REQUIRED,
-	                                               SC_IS_SUPPORTED,
-	                                               KEYPRESS_IS_NOT_SUPPORTED,
-	                                               7,
-	                                               16,
-	                                               USE_FIXED_PIN_FOR_PAIRING,
-	                                               123456,
-	                                               0x01);
-	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
-*/
 	ret = AddService();
 	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
 	return ret;
@@ -298,9 +285,9 @@ error:
 
 static void SetConnectable(void)
 {
-	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B','M','S','-','5'};
+	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B','M','S','-','6'};
 	  hci_le_set_scan_response_data(0,NULL);
-	  uint8_t rt = aci_gap_set_discoverable(ADV_IND, 0x0020,0x0020,STATIC_RANDOM_ADDR, NO_WHITE_LIST_USE,
+	  uint8_t rt = aci_gap_set_discoverable(ADV_IND, 0x0020, 0x0030,STATIC_RANDOM_ADDR, NO_WHITE_LIST_USE,
 	                                 sizeof(local_name), local_name, 0, NULL, 0x00, 0x00);
 	  if(rt != BLE_STATUS_AWS_SUCCESS)
 	  {
@@ -308,16 +295,6 @@ static void SetConnectable(void)
 	    iprintf("aci_gap_set_discoverable() failed\r\n");
 #endif
 	   }
-/*
-	  HOST_TO_LE_32(g_advData+TEMP_OFFSET, g_sentAuthToken);
-      hci_le_set_advertising_data(sizeof(g_advData),g_advData);
-	  if (hci_le_set_advertising_data(sizeof(g_advData),g_advData) != BLE_STATUS_AWS_SUCCESS) {
-#if BLE_DEBUG
-		  iprintf("hci_le_set_advertising_data() failed: %d\r\n", __LINE__);
-#endif
-	  }
-  */
-
 }
 
 void App_Init(void)
@@ -338,7 +315,6 @@ void App_Init(void)
 #endif
 		  while(1);
 	  }
-	  //Timer_Set(&SoftTim[0], 100);
 	  Timer_Set(&g_SoftTim[CONN_AUTH_TIMER], 20000);
 #if BLE_DEBUG
 	  iprintf("Encrypted Token:%d\n", g_sentAuthToken);
@@ -347,75 +323,106 @@ void App_Init(void)
 
 void App_Process(void)
 {
-	BmsPackState_t 		BleBuff	= {0};
-	BmsPackInfo_t  		PackInfo = {0};
-	DiagnosticInfo_t	DiagInfo = {0};
-    int ret = BLE_DataProcess(&BleBuff, &PackInfo, &DiagInfo);
-	if((ret == PACKSTATE_MSG_ID) && g_connected == 1){
-		LED_Toggle();
-#if BLE_DEBUG
-		iprintf("SOC: %d SOH: %d Current: %d\r\n",BleBuff.soc, BleBuff.soh, (int)BleBuff.current_mA);
-#endif
-		uint8_t tempData[20] = {0};
-		memcpy(&tempData, &BleBuff.soc, 3);
-		memcpy(&tempData[3], &BleBuff.current_mA, 4);
-		memcpy(&tempData[7], &BleBuff.temperature, 2);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[SOC_CUR_TEMP], 0x01, SOC_CUR_TEMP_LEN, 0, SOC_CUR_TEMP_LEN, tempData);
-		convertVoltages(&BleBuff.battVolt_mV[0], tempData);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BATT_VOLT], 0x01, BATT_VOLT_LEN, 0, BATT_VOLT_LEN, tempData);
-		memcpy(&tempData, &BleBuff.cell_balancing_status, 2);
-		memcpy(&tempData[2], &BleBuff.mosfet_open_close, 1);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[CELL_BAL_MOSFET_OC], 0x01, CELL_BAL_MOSFET_OC_LEN, 0, CELL_BAL_MOSFET_OC_LEN, tempData);
-		memcpy(&tempData, &BleBuff.range_DM, 2);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[RANGE], 0x01, RANGE_LEN, 0, RANGE_LEN, tempData);
-	}
-	else if(ret == BMS_PACK_INFO_MSG_ID && g_connected == 1)
+	switch(g_connected)
 	{
-#if BLE_DEBUG
-		iprintf("FW Version: %s %dS %dP\n", PackInfo.fw_version, PackInfo.series_parallel_config.series, PackInfo.series_parallel_config.parallel);
-#endif
-		uint8_t tempData[20] = {0};
-		memcpy(&tempData, &PackInfo.battery_id, 20);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BATTERY_ID], 0x01, BATTERY_ID_LEN, 0, BATTERY_ID_LEN, tempData);
-		memcpy(&tempData, &PackInfo.bms_version, 3);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BMS_VERS_CONFIG], 0x01, BMS_VERS_CONFIG_LEN, 0, BMS_VERS_CONFIG_LEN, tempData);
-		memcpy(&tempData, &PackInfo.fw_version, 20);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[FW_VERSION], 0x01, FW_VERSION_LEN, 0, FW_VERSION_LEN, tempData);
-	}
-	else if (ret == DIAGNOSTIC_MSG_ID && g_connected == 1)
-	{
-		uint8_t tempData[20] = {0};
-		memcpy(&tempData, &DiagInfo.BmsDiagostic, 11);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[BMS_DIAGNOSTIC], 0x01, BMS_DIAGNOSTIC_LEN, 0, BMS_DIAGNOSTIC_LEN, tempData);
-		memcpy(&tempData, &DiagInfo.PackDiagnostic.DesignCapacity, 9);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[CAPACITY_CYCLE_WARR], 0x01, CAPACITY_CYCLE_WARR_LEN, 0, CAPACITY_CYCLE_WARR_LEN, tempData);
-		memcpy(&tempData, &DiagInfo.PackDiagnostic.FullChargeInstancesCount, 14);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[INSTANCE_EVENT_COUNT], 0x01, INSTANCE_EVENT_COUNT_LEN, 0, INSTANCE_EVENT_COUNT_LEN, tempData);
-		memcpy(&tempData, &DiagInfo.PackDiagnostic.CumulativeAhSpent, 8);
-		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[AH_MAX_MIN_VOLT], 0x01, AH_MAX_MIN_VOLT_LEN, 0, AH_MAX_MIN_VOLT_LEN, tempData);
-	}
-	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_connected==1) && (!g_peerAuthenticated))
-	{
-		hci_disconnect(g_connectionHandle, 0x05);
-    }
-    else if(g_connected == 0)
-	{
-		SetConnectable();
+		case BLE_CONNECT_NOTIFY:
+		{
+			BLE_NotifyConnection(1);
+			Timer_Restart(&g_SoftTim[CONN_AUTH_TIMER]);
+			uint8_t temp[6] = {0};
+			memcpy(temp, (int*)&g_sentAuthToken, 4);
+			aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[AUTH_ACK_REQ], 0x01, AUTH_ACK_LEN, 0, sizeof(int), temp);
+			aci_l2cap_connection_parameter_update_req(g_connectionHandle, 0x0006, 0x0006, 0, 150);
+			__disable_irq();
+			g_connected = BLE_CONNECTED;
+			__enable_irq();
+			break;
+		}
+		case BLE_CONNECTED:
+		{
+			BmsPackState_t 		BleBuff	= {0};
+			BmsPackInfo_t  		PackInfo = {0};
+			DiagnosticInfo_t	DiagInfo = {0};
+		    int ret = BLE_DataProcess(&BleBuff, &PackInfo, &DiagInfo);
+			if(ret == PACKSTATE_MSG_ID){
+				LED_Toggle();
+		#if BLE_DEBUG
+				iprintf("SOC: %d SOH: %d Current: %d\r\n",BleBuff.soc, BleBuff.soh, (int)BleBuff.current_mA);
+		#endif
+				uint8_t tempData[32] = {0};
+				memcpy(&tempData, &BleBuff.soc, 3);
+				memcpy(&tempData[3], &BleBuff.current_mA, 4);
+				memcpy(&tempData[7], &BleBuff.temperature_deciC, (TEMP_SENSOR_LEN));
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[SOC_CUR_TEMP], 0x01, SOC_CUR_TEMP_LEN, 0, SOC_CUR_TEMP_LEN, tempData);
+				convertVoltages(&BleBuff.battVolt_mV[0], tempData);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BATT_VOLT], 0x01, BATT_VOLT_LEN, 0, BATT_VOLT_LEN, tempData);
+				memcpy(&tempData, &BleBuff.cell_balancing_status, 2);
+				memcpy(&tempData[2], &BleBuff.mosfet_open_close, 1);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[CELL_BAL_MOSFET_OC], 0x01, CELL_BAL_MOSFET_OC_LEN, 0, CELL_BAL_MOSFET_OC_LEN, tempData);
+				memcpy(&tempData, &BleBuff.range_dM, 2);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[RANGE], 0x01, RANGE_LEN, 0, RANGE_LEN, tempData);
+			}
+			else if(ret == BMS_PACK_INFO_MSG_ID)
+			{
+		#if BLE_DEBUG
+				iprintf("FW Version: %s %dS %dP\n", PackInfo.fw_version, PackInfo.series_parallel_config.series, PackInfo.series_parallel_config.parallel);
+		#endif
+				uint8_t tempData[20] = {0};
+				memcpy(&tempData, &PackInfo.battery_id, 20);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BATTERY_ID], 0x01, BATTERY_ID_LEN, 0, BATTERY_ID_LEN, tempData);
+				memcpy(&tempData, &PackInfo.bms_version, 3);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[BMS_VERS_CONFIG], 0x01, BMS_VERS_CONFIG_LEN, 0, BMS_VERS_CONFIG_LEN, tempData);
+				memcpy(&tempData, &PackInfo.fw_version, 20);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[FW_VERSION], 0x01, FW_VERSION_LEN, 0, FW_VERSION_LEN, tempData);
+			}
+			else if (ret == DIAGNOSTIC_MSG_ID)
+			{
+				uint8_t tempData[20] = {0};
+				memcpy(&tempData, &DiagInfo.BmsDiagostic, 11);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[BMS_DIAGNOSTIC], 0x01, BMS_DIAGNOSTIC_LEN, 0, BMS_DIAGNOSTIC_LEN, tempData);
+				memcpy(&tempData, &DiagInfo.PackDiagnostic.DesignCapacity, 9);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[CAPACITY_CYCLE_WARR], 0x01, CAPACITY_CYCLE_WARR_LEN, 0, CAPACITY_CYCLE_WARR_LEN, tempData);
+				memcpy(&tempData, &DiagInfo.PackDiagnostic.FullChargeInstancesCount, 14);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[INSTANCE_EVENT_COUNT], 0x01, INSTANCE_EVENT_COUNT_LEN, 0, INSTANCE_EVENT_COUNT_LEN, tempData);
+				memcpy(&tempData, &DiagInfo.PackDiagnostic.CumulativeAhSpent, 8);
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DIAGNOSTIC_SERVICE], g_DiagnosticGroup[AH_MAX_MIN_VOLT], 0x01, AH_MAX_MIN_VOLT_LEN, 0, AH_MAX_MIN_VOLT_LEN, tempData);
+			}
+			break;
+		}
+		case BLE_DISCONNECT_NOTIFY:
+		{
+			BLE_NotifyConnection(0);
+			__disable_irq();
+			g_connected = BLE_DISCONNECTED;
+			__enable_irq();
+			break;
+		}
+		case BLE_DISCONNECTED:
+		{
+			SetConnectable();
 #if BLE_DEBUG
 		iprintf("Setting Connectable\r\n");
 #endif
-		g_connected = 2;
+			__disable_irq();
+			g_connected = BLE_ADVERTISING;
+			__enable_irq();
+			break;
+		}
+		case BLE_DIAGNOSTIC_REQ:
+		{
+			BLE_DiagnosticRequest();
+			__disable_irq();
+			g_connected = BLE_CONNECTED;
+			__enable_irq();
+			break;
+		}
+		default:
+			break;
 	}
-/*    else if(Timer_Expired(&SoftTim[0]) && connected==2)
-    {
-    	 static int16_t cnt = 0;
-    	 if(cnt == 30000)
-    		 cnt = 0;
-        HOST_TO_LE_16(adv_data+TEMP_OFFSET, cnt++);
-        hci_le_set_advertising_data(sizeof(adv_data),adv_data);
-        iprintf("Advertised\n");
-        Timer_Restart(&SoftTim[0]);
-    }*/
+	if((Timer_Expired(&g_SoftTim[CONN_AUTH_TIMER])) && (g_connected == BLE_CONNECTED) && (!g_peerAuthenticated))
+	{
+		hci_disconnect(g_connectionHandle, 0x05);
+    }
 }
 
 
@@ -434,13 +441,7 @@ void hci_le_connection_complete_event(uint8_t Status,
 	iprintf("Conn Interval:%u Conn Latency:%u Supervision Timeout:%u \n",Conn_Interval,Conn_Latency,Supervision_Timeout);
 #endif
 	g_connectionHandle = Connection_Handle;
-	g_connected = 1;
-	BLE_NotifyConnection(1);
-	Timer_Restart(&g_SoftTim[CONN_AUTH_TIMER]);
-	uint8_t temp[6] = {0};
-	memcpy(temp, (int*)&g_sentAuthToken, 4);
-    aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[AUTH_ACK_REQ], 0x01, AUTH_ACK_LEN, 0, sizeof(int), temp);
-	//aci_l2cap_connection_parameter_update_req(g_connectionHandle, 0x28, 0x28, 0x00, 20);
+	g_connected = BLE_CONNECT_NOTIFY;
 }
 
 void hci_disconnection_complete_event(uint8_t Status, uint16_t Connection_Handle, uint8_t Reason)
@@ -451,9 +452,8 @@ void hci_disconnection_complete_event(uint8_t Status, uint16_t Connection_Handle
 	else
 		iprintf("Disconnection Reason:%u\n", Reason);
 #endif
-	g_connected = 0;
+	g_connected = BLE_DISCONNECT_NOTIFY;
 	g_peerAuthenticated = 0;
-	BLE_NotifyConnection(0);
 }
 
 void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
@@ -481,7 +481,7 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
 		}
 		if(Attr_Data[4] == 2)
 		{
-			BLE_DiagnosticRequest();
+			g_connected = BLE_DIAGNOSTIC_REQ;
 #if BLE_DEBUG
       iprintf("Diagnostic Requested\n");
 #endif
@@ -489,22 +489,10 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
 	}
 }
 
-
-void aci_gap_pass_key_req_event(uint16_t Connection_Handle)
-{
-
-}
-
-void aci_gap_pairing_complete_event(uint16_t Connection_Handle, uint8_t Status, uint8_t Reason)
-{
-
-}
-
-void aci_gap_bond_lost_event(void)
-{
-	// use aci_gap_allow_rebond()
-}
-
+/*
+ * Callback triggered when a Diagnostic ACK is received from BMS
+ * Context : while loop.
+ * */
 void BLE_DiagnosticMsgCallback(uint8_t state)
 {
 	if (g_connected == 1)
@@ -514,45 +502,4 @@ void BLE_DiagnosticMsgCallback(uint8_t state)
 	#endif
 			aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[AUTH_ACK_REQ], 0x01, AUTH_ACK_LEN, 4, 1, &state);
 	}
-}
-
-void aci_l2cap_connection_update_req_event(uint16_t Connection_Handle,
-                                           uint8_t Identifier,
-                                           uint16_t L2CAP_Length,
-                                           uint16_t Interval_Min,
-                                           uint16_t Interval_Max,
-                                           uint16_t Slave_Latency,
-                                           uint16_t Timeout_Multiplier)
-{
-#if BLE_DEBUG
-	iprintf("%u %u %u %u\n", Interval_Min, Interval_Max, Slave_Latency, Timeout_Multiplier);
-#endif
-}
-
-void aci_l2cap_command_reject_event(uint16_t Connection_Handle,
-                                    uint8_t Identifier,
-                                    uint16_t Reason,
-                                    uint8_t Data_Length,
-                                    uint8_t Data[])
-{
-#if BLE_DEBUG
-	iprintf("l2CAp request rejected\n");
-#endif
-}
-
-void aci_l2cap_connection_update_resp_event(uint16_t Connection_Handle,
-                                            uint16_t Result)
-{
-#if BLE_DEBUG
-	iprintf("Result: %d\n", Result);
-#endif
-}
-
-void aci_l2cap_proc_timeout_event(uint16_t Connection_Handle,
-                                  uint8_t Data_Length,
-                                  uint8_t Data[])
-{
-#if BLE_DEBUG
-	iprintf("l2CAp Timed Out\n");
-#endif
 }
