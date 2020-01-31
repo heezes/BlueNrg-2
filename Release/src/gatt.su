@@ -1,0 +1,3 @@
+gatt.c:27:12:AddService	304	static
+gatt.c:180:5:Device_Init	64	static
+gatt.c:211:6:SetConnectable	56	static

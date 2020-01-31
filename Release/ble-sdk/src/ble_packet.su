@@ -1,2 +1,3 @@
-ble_packet.c:31:8:BLE_SendPkt	16	static
-ble_packet.c:47:5:BLE_GetPkt	32	static
+ble_packet.c:17:13:checksum_calculate	16	static
+ble_packet.c:31:8:BLE_SendPkt	24	static
+ble_packet.c:47:5:BLE_GetPkt	40	static

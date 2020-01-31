@@ -1,4 +1,6 @@
+sleep.c:112:13:frequency_switch	16	static
+sleep.c:138:13:BlueNRG_InternalSleep	600	static
 sleep.c:95:1:App_SleepMode_Check	0	static
 sleep.c:99:1:BlueNRG_Stack_Perform_Deep_Sleep_Check	0	static
-sleep.c:648:9:BlueNRG_Sleep	696	static
+sleep.c:648:9:BlueNRG_Sleep	24	static
 sleep.c:700:9:BlueNRG_WakeupSource	0	static

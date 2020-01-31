@@ -1,8 +1,9 @@
-com.c:24:6:COM_QueueStoreFromISR	24	static
-com.c:49:12:COM_Init	8	static
-com.c:59:12:COM_ReceiveBlocking	8	static
-com.c:66:12:COM_ReceiveNonBlocking	24	static
-com.c:71:12:COM_SendBlocking	8	static
-com.c:76:12:COM_SendNonBlocking	8	static
-com.c:82:5:COM_IsDataAvailable	0	static
-com.c:87:6:COM_FlushBuffer	8	static
+com.c:48:19:GetData	16	static
+com.c:26:6:BleQueueStoreFromISR	16	static
+com.c:62:12:COM_Init	8	static
+com.c:77:12:COM_ReceiveBlocking	8	static
+com.c:84:12:COM_ReceiveNonBlocking	8	static
+com.c:89:12:COM_SendBlocking	8	static
+com.c:94:12:COM_SendNonBlocking	8	static
+com.c:100:5:COM_IsDataAvailable	0	static
+com.c:105:6:COM_FlushBuffer	8	static

@@ -1,5 +1,5 @@
-BlueNRG1_adc.c:92:7:ADC_ConvertDifferentialVoltage	24	static
-BlueNRG1_adc.c:125:7:ADC_ConvertSingleEndedVoltage	32	static
+BlueNRG1_adc.c:92:7:ADC_ConvertDifferentialVoltage	16	static
+BlueNRG1_adc.c:125:7:ADC_ConvertSingleEndedVoltage	24	static
 BlueNRG1_adc.c:161:7:ADC_ConvertBatterySensor	8	static
 BlueNRG1_adc.c:172:7:ADC_ConvertTemperatureSensor	8	static
 BlueNRG1_adc.c:176:7:ADC_ConvertTemperatureSensorFarenait	8	static

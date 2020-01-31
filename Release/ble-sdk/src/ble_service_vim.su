@@ -1,0 +1,10 @@
+ble_service_vim.c:36:28:BLE_AuthTokenReceivedCallback	0	static
+ble_service_vim.c:46:28:BLE_LockReqCallback	0	static
+ble_service_vim.c:54:28:BLE_DataReceivedCallback	0	static
+ble_service_vim.c:62:28:BLE_UnlockCallback	0	static
+ble_service_vim.c:71:28:BLE_RidePausedCallback	0	static
+ble_service_vim.c:81:8:BLE_NotifyConnection	16	static
+ble_service_vim.c:100:8:BLE_NotifyAuthentication	16	static
+ble_service_vim.c:118:8:BLE_NotifyRideResume	16	static
+ble_service_vim.c:136:8:BLE_NotifyLockRequest	16	static
+ble_service_vim.c:156:5:BLE_DataProcess	520	static

@@ -1,7 +1,7 @@
-queue.c:39:6:create_queue	8	static
+queue.c:39:6:create_queue	0	static
 queue.c:82:5:isFull	0	static
 queue.c:90:5:isEmpty	0	static
 queue.c:98:5:enqueue	16	static
 queue.c:125:5:Q_enqueueIdle	16	static
-queue.c:139:5:dequeue	8	static
+queue.c:139:5:dequeue	16	static
 queue.c:169:6:flush	0	static

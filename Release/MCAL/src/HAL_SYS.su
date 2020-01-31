@@ -1,4 +1,4 @@
 HAL_SYS.c:14:6:SystickInit	0	static
 HAL_SYS.c:19:6:HAL_IncTick	0	static
 HAL_SYS.c:22:10:HAL_GetTick	0	static
-HAL_SYS.c:25:6:HAL_Delay	0	static
+HAL_SYS.c:25:6:HAL_Delay	16	static

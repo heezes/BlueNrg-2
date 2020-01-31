@@ -1,4 +1,4 @@
-BlueNRG1_wdg.c:95:6:WDG_SetWriteAccess	16	static
+BlueNRG1_wdg.c:95:6:WDG_SetWriteAccess	8	static
 BlueNRG1_wdg.c:115:17:WDG_GetWriteAccess	0	static
 BlueNRG1_wdg.c:127:6:WDG_SetReload	8	static
 BlueNRG1_wdg.c:139:6:WDG_Enable	0	static

@@ -19,4 +19,9 @@ void LED_On(void);
 void LED_Off(void);
 void LED_Toggle(void);
 
+#ifdef VIM
+void WAKEUP_Init(void);
+void WAKEUP_Pulse(void);
+#endif
+
 #endif /* INC_HAL_GPIO_H_ */

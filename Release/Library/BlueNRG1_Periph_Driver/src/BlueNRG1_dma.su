@@ -1,4 +1,4 @@
-BlueNRG1_dma.c:116:6:DMA_DeInit	16	static
+BlueNRG1_dma.c:116:6:DMA_DeInit	8	static
 BlueNRG1_dma.c:182:6:DMA_Init	16	static
 BlueNRG1_dma.c:239:6:DMA_StructInit	0	static
 BlueNRG1_dma.c:274:6:DMA_Cmd	16	static

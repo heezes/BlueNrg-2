@@ -32,12 +32,12 @@
 
 UartHandleTypeDef uart;
 
-extern void COM_QueueStoreFromISR(uint8_t data);
+extern void BleQueueStoreFromISR(uint8_t data);
 
 /*Microcontroller Dependent Callbacks*/
 void HAL_uart_RxCallback(UartHandleTypeDef* uart)
 {
-	COM_QueueStoreFromISR(*(uart->RxPtr));
+	BleQueueStoreFromISR(*(uart->RxPtr));
 	if(uart->mode == HAL_INTERRUPT_MODE)
 		HAL_UART_RECEIVE_IT(uart, uart->RxPtr,1);
 }
@@ -56,24 +56,24 @@ void HAL_uart_ErrorCallback(UartHandleTypeDef* uart)
  * The COM Structure setting has no effect on the Peripheral.
  * Any changes in the Peripheral have to be done from here
  * */
-void UART_Initialize(void)
+void UART_Initialize(uint8_t instance)
 {
 	uart.idx = 1;
 	uart.baudrate = 115200;
 	uart.mode = (uint8_t)HAL_DMA_MODE;
 	HAL_UART_INIT(&uart);
 }
-void UART_DeInitialize(void)
+void UART_DeInitialize(uint8_t instance)
 {
 	/*Add DeInit Logic Here*/
 }
 
-int UART_Send(uint8_t* buf, int len, int timeout)
+int UART_Send(uint8_t instance, uint8_t* buf, int len, int timeout)
 {
 	return (HAL_UART_SEND(&uart,buf,len,timeout) == HAL_OK) ? 0 : -1;
 }
 
-int UART_SendNonBlocking(uint8_t* buf, int len)
+int UART_SendNonBlocking(uint8_t instance, uint8_t* buf, int len)
 {
 	int ret = -1;
 	uart.RxPtr = buf;
@@ -86,12 +86,12 @@ int UART_SendNonBlocking(uint8_t* buf, int len)
 	return ret;
 }
 
-int UART_Receive(uint8_t* buf, int len, int timeout)
+int UART_Receive(uint8_t instance, uint8_t* buf, int len, int timeout)
 {
 	return (HAL_UART_RECEIVE(&uart,buf,len,timeout) == HAL_OK) ? 0:1;
 }
 
-int UART_StartReceiveNonBlocking(uint8_t* buf, int len)
+int UART_StartReceiveNonBlocking(uint8_t instance, uint8_t* buf, int len)
 {
 	int ret = -1;
 	if(uart.mode == HAL_INTERRUPT_MODE)
@@ -101,5 +101,6 @@ int UART_StartReceiveNonBlocking(uint8_t* buf, int len)
 	else
 		return ret;
 	return ret;
+	return 0;
 }
 

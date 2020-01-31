@@ -1,4 +1,6 @@
 HAL_GPIO.c:9:6:LED_Init	16	static
-HAL_GPIO.c:20:6:LED_On	8	static
-HAL_GPIO.c:25:6:LED_Off	8	static
-HAL_GPIO.c:30:6:LED_Toggle	8	static
+HAL_GPIO.c:24:6:LED_On	8	static
+HAL_GPIO.c:33:6:LED_Off	8	static
+HAL_GPIO.c:42:6:LED_Toggle	8	static
+HAL_GPIO.c:54:6:WAKEUP_Init	16	static
+HAL_GPIO.c:64:6:WAKEUP_Pulse	8	static

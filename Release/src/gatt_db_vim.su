@@ -1,0 +1,3 @@
+gatt_db_vim.c:25:12:AddService	136	static
+gatt_db_vim.c:92:5:Device_Init	48	static
+gatt_db_vim.c:123:6:SetConnectable	48	static

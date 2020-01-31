@@ -9,7 +9,7 @@ BlueNRG1_spi.c:278:6:SPI_SendData	0	static
 BlueNRG1_spi.c:289:10:SPI_ReceiveData	0	static
 BlueNRG1_spi.c:305:6:SPI_DataSizeConfig	8	static
 BlueNRG1_spi.c:324:6:SPI_CommandSizeConfig	8	static
-BlueNRG1_spi.c:339:6:SPI_EnableWaitState	16	static
+BlueNRG1_spi.c:339:6:SPI_EnableWaitState	8	static
 BlueNRG1_spi.c:363:6:SPI_FrameFormatConfig	8	static
 BlueNRG1_spi.c:386:12:SPI_GetFlagStatus	8	static
 BlueNRG1_spi.c:416:10:SPI_GetITStatus	8	static
