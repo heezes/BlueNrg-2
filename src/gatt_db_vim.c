@@ -89,7 +89,7 @@ static int AddService(void)
 }
 
 
-int Device_Init(void)
+int Device_Init(uint8_t* deviceID)
 {
 	int ret = 0;
 	uint8_t ble_addr[] = {0x01, 0x00, 0x80, 0xE1, 0x80, 0x02};
@@ -104,7 +104,7 @@ int Device_Init(void)
 	}
 	ret = aci_gatt_init();
 	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
-	uint8_t DeviceName[] = "VIM";
+	uint8_t *DeviceName = (uint8_t*)&deviceID;
 	uint16_t Service_Handle, Dev_Name_Char_Handle, Appearance_Char_Handle;
 	ret = aci_gap_init(Peripheral, Disabled, (uint8_t)strlen((char*)DeviceName), &Service_Handle, &Dev_Name_Char_Handle, &Appearance_Char_Handle);
 	if(ret != BLE_STATUS_AWS_SUCCESS){ret = __LINE__;goto error;}
@@ -120,9 +120,11 @@ error:
 	return ret;
 }
 
-void SetConnectable(void)
+void SetConnectable(uint8_t* deviceId)
 {
-	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'V','I','M','-','1'};
+	  uint8_t local_name[20] = {0};
+	  local_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
+	  memcpy((uint8_t*)&local_name[1], (uint8_t*)deviceId, strlen((char*)deviceId));
 	  hci_le_set_scan_response_data(0,NULL);
 	  uint8_t rt = aci_gap_set_discoverable(ADV_IND, 0x0020, 0x0030,STATIC_RANDOM_ADDR, NO_WHITE_LIST_USE,
 	                                 sizeof(local_name), local_name, 0, NULL, 0x00, 0x00);

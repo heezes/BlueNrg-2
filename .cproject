@@ -61,7 +61,7 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM0"/>
 									<listOptionValue builtIn="false" value="GET_TICK=HAL_GetTick"/>
 									<listOptionValue builtIn="false" value="USE_DEPRECATED_FUNCTIONS"/>
-									<listOptionValue builtIn="false" value="VIM"/>
+									<listOptionValue builtIn="false" value="VIM=1"/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.directories.select.1282008900" name="Include path" superClass="com.atollic.truestudio.gcc.directories.select" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BlueNrg-M2SP/Library/CMSIS/Include}&quot;"/>

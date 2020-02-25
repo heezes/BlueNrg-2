@@ -56,7 +56,7 @@ void HAL_uart_ErrorCallback(UartHandleTypeDef* uart)
  * The COM Structure setting has no effect on the Peripheral.
  * Any changes in the Peripheral have to be done from here
  * */
-void UART_Initialize(uint8_t instance)
+void UART_Initialize(uint8_t instance, uint32_t baudrate)
 {
 	uart.idx = 1;
 	uart.baudrate = 115200;

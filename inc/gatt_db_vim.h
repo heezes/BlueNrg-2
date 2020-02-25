@@ -65,8 +65,8 @@ extern volatile uint8_t g_sentAuthToken[MAX_TOKEN_SIZE];
 extern volatile int g_peerAuthenticated;
 
 
-int Device_Init(void);
-void SetConnectable(void);
+int Device_Init(uint8_t* deviceID);
+void SetConnectable(uint8_t* deviceId);
 
 
 

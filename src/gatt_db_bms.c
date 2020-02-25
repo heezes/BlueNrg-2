@@ -96,7 +96,7 @@ static int AddService(void)
 
       /***************************************************************************************************************************************************************************************************/
       Osal_MemCpy(&service_uuid.Service_UUID_128, DataService_UUID_128, 16);
-	  ret = aci_gatt_add_service(UUID_TYPE_128, &service_uuid, PRIMARY_SERVICE, 26, &g_ServiceHandle[DATA_SERVICE]);
+	  ret = aci_gatt_add_service(UUID_TYPE_128, &service_uuid, PRIMARY_SERVICE, 25, &g_ServiceHandle[DATA_SERVICE]);
 	  if (ret != BLE_STATUS_AWS_SUCCESS) {ret = __LINE__;goto fail;}
 
 	  Osal_MemCpy(&charUUID.Char_UUID_128, &DataGroup[SOC_CUR_TEMP], 16);
@@ -210,7 +210,7 @@ error:
 
 void SetConnectable(void)
 {
-	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B','M','S','-','6'};
+	  uint8_t local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME,'B','M','S','-','7'};
 	  hci_le_set_scan_response_data(0,NULL);
 	  uint8_t rt = aci_gap_set_discoverable(ADV_IND, 0x0020, 0x0030,STATIC_RANDOM_ADDR, NO_WHITE_LIST_USE,
 	                                 sizeof(local_name), local_name, 0, NULL, 0x00, 0x00);

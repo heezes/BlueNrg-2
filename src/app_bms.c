@@ -64,6 +64,7 @@ void App_Init(void)
 		  while(1);
 	  }
 	  Timer_Set(&g_SoftTim[CONN_AUTH_TIMER], 20000);
+	  g_deviceState = BLE_DISCONNECTED;
 #if BLE_DEBUG
 	  iprintf("Encrypted Token:%d\n", g_sentAuthToken);
 #endif

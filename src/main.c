@@ -69,7 +69,6 @@ int main(void)
   /* Enable the GPIO Clock */
   SysCtrl_PeripheralClockCmd(CLOCK_PERIPH_GPIO | CLOCK_PERIPH_UART | CLOCK_PERIPH_DMA, ENABLE);
   SystickInit();
-  HAL_Delay(500);
   /* BlueNRG-1 stack init */
   uint8_t ret = BlueNRG_Stack_Initialization(&BlueNRG_Stack_Init_params);
   if (ret != BLE_STATUS_AWS_SUCCESS) {
