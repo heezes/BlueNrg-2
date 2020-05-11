@@ -46,9 +46,9 @@ extern uint8_t g_advData[12];
 
 
 /*DATA CHARACTERISTIC LEN*/
-#define COMMAND_LEN 		64
-#define RESPONSE_LEN		64
-#define DATA_LEN			64
+#define COMMAND_LEN 		128
+#define RESPONSE_LEN		128
+#define DATA_LEN			128
 
 #define MAX_TOKEN_SIZE		4
 /***********************************************************************************************************************/

@@ -18,8 +18,6 @@ uint16_t g_DataGroup[3] =  {0};
 
 volatile uint8_t g_deviceState = 0;
 volatile uint16_t g_connectionHandle = 0;
-volatile uint8_t  g_sentAuthToken[MAX_TOKEN_SIZE] = {0};
-volatile int g_peerAuthenticated = 0;
 
 
 static int AddService(void)

@@ -8,4 +8,6 @@ ble_service_vim.c:100:8:BLE_NotifyAuthentication	16	static
 ble_service_vim.c:118:8:BLE_NotifyRideResume	16	static
 ble_service_vim.c:136:8:BLE_NotifyLockRequest	16	static
 ble_service_vim.c:154:8:BLE_NotifyPauseRequest	16	static
-ble_service_vim.c:174:5:BLE_DataProcess	520	static
+ble_service_vim.c:172:8:BLE_DeactivateAlarm	16	static
+ble_service_vim.c:190:8:BLE_BmsFwUpdateNotify	16	static
+ble_service_vim.c:210:5:BLE_DataProcess	520	static

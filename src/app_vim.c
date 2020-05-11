@@ -13,18 +13,23 @@
 #include "gp_timer.h"
 #include "string.h"
 #include "math.h"
+#include "crypto.h"
 
 /*Private Defines*/
 #define  UPDATE_CONN_PARAM 	  0
 /*Timer Defines*/
 #define  CONN_AUTH_TIMER      0
 
-volatile uint8_t g_deviceIdArray[48] = "AAR";
+volatile uint8_t g_deviceIdArray[48] = "VIM-x";
 volatile uint8_t notValidLocalName = 1;
 /*Private TypeDef*/
 struct timer g_SoftTim[2];
 
-volatile uint8_t  g_receivedAuthToken[MAX_TOKEN_SIZE] = {0};
+uint32_t g_masterToken = 18717;
+//volatile uint8_t  g_receivedAuthToken[MAX_TOKEN_SIZE] = {0};
+volatile uint8_t  g_sentAuthToken[MAX_TOKEN_SIZE] = {0};
+volatile int g_peerAuthenticated = 0;
+
 
 volatile BleHandleTypeDef_t myBle = {0};
 
@@ -48,18 +53,17 @@ void App_Init(void)
 	  LED_Off();
 	  COM_Init();
 	  MODULE_DEBUG("Starting!\r\n");
-//	  while(notValidLocalName)
-//	  {
-//		  BLE_DataProcess();
-//	  }
+	  while(notValidLocalName)
+	  {
+		  BLE_DataProcess();
+	  }
 	  if(Device_Init((uint8_t*)g_deviceIdArray) != BLE_STATUS_AWS_SUCCESS)
 	  {
 		  MODULE_DEBUG("App Init Failed at Line: %d\r\n", __LINE__);
 		  while(1);
 	  }
 	  Timer_Set(&g_SoftTim[CONN_AUTH_TIMER], 20000);
-	  uint32_t myTempToken = 18717;
-	  memcpy((uint8_t*)&g_sentAuthToken, &myTempToken, MAX_TOKEN_SIZE);
+	  memcpy((uint8_t*)&g_sentAuthToken, &g_masterToken, MAX_TOKEN_SIZE);
 	  MODULE_DEBUG("Encrypted Token:%d\n", g_sentAuthToken);
 	  myBle.bleState = BLE_DISCONNECTED;
 }
@@ -98,18 +102,15 @@ void App_Process(void)
 			}
 			if(myBle.responseOpcode != 0x00)
 			{
+				if(myBle.cmdOpcode == LOCK_REQ_OPCODE)
+				{
+					__disable_irq();
+					aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[DATA], 0x01, RESPONSE_LEN, 0, strlen((char *)&myBle.data[0]), (uint8_t *)&myBle.data[0]);
+					__enable_irq();
+				}
 				//Update the Response
-				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[RESPONSE], 0x01, RESPONSE_LEN, 0, 0x01, (uint8_t *)&myBle.responseOpcode);
-//			    BTLE_StackTick();//To update the char value so that disconnect is successfull
-//				if(myBle.cmdOpcode == LOCK_REQ_OPCODE)
-//				{
-//					if(myBle.responseOpcode == POSITIVE_ACK)
-//					{
-//						Timer_Set(&g_SoftTim[CONN_AUTH_TIMER], 100);
-//						g_peerAuthenticated = 0;
-//					}
-//				}
 				__disable_irq();
+				aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[RESPONSE], 0x01, RESPONSE_LEN, 0, 0x01, (uint8_t *)&myBle.responseOpcode);
 				myBle.responseOpcode = 0;
 				__enable_irq();
 			}
@@ -118,8 +119,6 @@ void App_Process(void)
 		case BLE_LOCK_NOTIFY:
 		{
 			BLE_NotifyLockRequest();
-			//HArdcoding positive ack
-			myBle.responseOpcode = POSITIVE_ACK;
 			__disable_irq();
 			myBle.bleState = BLE_CONNECTED;
 			__enable_irq();
@@ -128,7 +127,7 @@ void App_Process(void)
 		case BLE_PAUSE_NOTIFY:
 		{
 			BLE_NotifyPauseRequest();
-			//HArdcoding Although the reponse is expected
+			//Hardcoding Although the reponse is expected
 			myBle.responseOpcode = POSITIVE_ACK;
 			__disable_irq();
 			myBle.bleState = BLE_CONNECTED;
@@ -138,6 +137,24 @@ void App_Process(void)
 		case BLE_RIDE_RESUME_NOTIFY:
 		{
 			BLE_NotifyRideResume();
+			myBle.responseOpcode = POSITIVE_ACK;
+			__disable_irq();
+			myBle.bleState = BLE_CONNECTED;
+			__enable_irq();
+			break;
+		}
+		case BLE_DEACTIVATE_ALARM:
+		{
+			BLE_DeactivateAlarm();
+			myBle.responseOpcode = POSITIVE_ACK;
+			__disable_irq();
+			myBle.bleState = BLE_CONNECTED;
+			__enable_irq();
+			break;
+		}
+		case BMS_FW_UPDATE_NOTIFY:
+		{
+			BLE_BmsFwUpdateNotify();
 			myBle.responseOpcode = POSITIVE_ACK;
 			__disable_irq();
 			myBle.bleState = BLE_CONNECTED;
@@ -215,27 +232,24 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
 	{
 		if(myBle.cmdOpcode == AUTH_OPCODE)
 		{
-			memcpy((uint8_t*)&g_receivedAuthToken, Attr_Data, 4);
-			MODULE_DEBUG("%d %d %d\n", g_receivedAuthToken, Attr_Handle, g_DataGroup[DATA]);
-			if(memcmp((uint8_t*)&g_receivedAuthToken, (uint8_t*)&g_sentAuthToken, MAX_TOKEN_SIZE) == 0)
+			MODULE_DEBUG("%d %d\n", Attr_Handle, g_DataGroup[DATA]);
+			uint8_t masterTokenArray[4] = {0};
+			memcpy((uint8_t*)&masterTokenArray[0], &g_masterToken, MAX_TOKEN_SIZE);
+			if(memcmp(Attr_Data, (uint8_t*)&g_sentAuthToken, MAX_TOKEN_SIZE) == 0)
 			{
 				g_peerAuthenticated = 1;
 				MODULE_DEBUG("Peer Authenticated\n");
-				if(myBle.cmdOpcode == AUTH_OPCODE)
-				{
-					myBle.responseOpcode = POSITIVE_ACK;
-				}
+				myBle.responseOpcode = POSITIVE_ACK;
 			}
-			else if(memcmp((uint8_t*)&g_receivedAuthToken, (uint8_t*)&g_sentAuthToken, MAX_TOKEN_SIZE) == 0)
+			else if(memcmp(Attr_Data, (uint8_t*)&masterTokenArray, MAX_TOKEN_SIZE) == 0)
 			{
-
+				g_peerAuthenticated = 1;
+				MODULE_DEBUG("Peer Authenticated\n");
+				myBle.responseOpcode = POSITIVE_ACK;
 			}
 			else
 			{
-				if(myBle.cmdOpcode == AUTH_OPCODE)
-				{
-					myBle.responseOpcode = NEGATIVE_ACK;
-				}
+				myBle.responseOpcode = NEGATIVE_ACK;
 			}
 		}
 	}
@@ -266,6 +280,13 @@ void aci_gatt_attribute_modified_event(uint16_t Connection_Handle,
 			}
 			case VEHICLE_UNLOCK_OPCODE:
 				myBle.bleState = BLE_UNLOCK_NOTIFY;
+				break;
+			case DEACT_ALARM_OPCODE:
+				myBle.bleState = BLE_DEACTIVATE_ALARM;
+				break;
+			case UPDATE_BMS_FIRMWARE:
+				myBle.bleState = BMS_FW_UPDATE_NOTIFY;
+				break;
 			default:
 				break;
 		}
@@ -283,7 +304,6 @@ void BLE_AuthTokenReceivedCallback(uint8_t *token, uint8_t len)
 			g_sentAuthToken[MAX_TOKEN_SIZE-idx] = token[MAX_TOKEN_SIZE-idx];
 			idx--;
 		}
-//		memcpy((uint8_t*)&g_sentAuthToken, &token, len);
 	}
 }
 
@@ -299,13 +319,26 @@ void BLE_LockReqCallback(uint8_t state)
 //		}
 //	else
 //		MODULE_DEBUG("Lock Req Denied Sync Error\n");
+	if(state == LOCK_RTD_TIMEDOUT)
+	{
+		uint8_t lockNotify = 0x05;
+		aci_gatt_update_char_value_ext(g_connectionHandle , g_ServiceHandle[DATA_SERVICE], g_DataGroup[RESPONSE], 0x01, RESPONSE_LEN, 0, 0x01, (uint8_t *)&lockNotify);
+	}
 }
 
 void BLE_DataReceivedCallback(uint8_t* data, int len)
 {
-	sprintf(&g_deviceIdArray, "%s", data);
-	notValidLocalName = 0;
-	LED_On();
+	if(data[0] != '{')
+	{
+		memcpy((uint8_t*)&g_deviceIdArray, data, len);
+		notValidLocalName = 0;
+		LED_On();
+	}
+	else
+	{
+		myBle.responseOpcode = POSITIVE_ACK;
+		memcpy((uint8_t*)&myBle.data[0], (uint8_t*)&data[0], len);
+	}
 }
 
 void BLE_UnlockCallback(uint8_t data)

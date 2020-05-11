@@ -8,7 +8,7 @@
 These constants and variables are used from the BlueNRG-1,2 BLE stack to reserve RAM and FLASH according the application requests. */
 
 /* Device Name */
-#define NAME_DEVICE	(VIM)
+#define NAME_DEVICE	(BlueNRG)
 /* Default number of link */
 #define MIN_NUM_LINK	(1)
 
@@ -18,10 +18,10 @@ These constants and variables are used from the BlueNRG-1,2 BLE stack to reserve
 /* Default number of GAP and GATT attributes */
 #define DEFAULT_NUM_GATT_ATTRIBUTES	(9)
 
-/* Number of services requests from the ble demo */
+/* Number of services requests from the vim demo */
 #define NUM_APP_GATT_SERVICES	(1)
 
-/* Number of attributes requests from the ble demo */
+/* Number of attributes requests from the vim demo */
 #define NUM_APP_GATT_ATTRIBUTES	(9)
 
 /* OTA characteristics maximum lenght */
@@ -31,10 +31,10 @@ These constants and variables are used from the BlueNRG-1,2 BLE stack to reserve
 #define MAX_CHAR_LEN(a,b) ((a) > (b) )? (a) : (b)
 
 /* Set supported max value for attribute size: it is the biggest attribute size enabled by the application. */
-#define BLE_MAX_ATT_SIZE	(61)
-#define APP_MAX_ATT_SIZE	  MAX_CHAR_LEN(OTA_MAX_ATT_SIZE,  BLE_MAX_ATT_SIZE)
+#define VIM_MAX_ATT_SIZE	(128)
+#define APP_MAX_ATT_SIZE	  MAX_CHAR_LEN(OTA_MAX_ATT_SIZE,  VIM_MAX_ATT_SIZE)
 
-/* Number of links needed for the ble demo: 1 */
+/* Number of links needed for the vim demo: 1 */
 #define NUM_LINKS	(MIN_NUM_LINK)
 
 /* Max Number of Attribute Records defined for the service:
@@ -44,10 +44,10 @@ Please make sure this value is used for configuring the related aci_gatt_add_ser
 /* Number of characteristics defined by the user application */
 /*#define NUMBER_CHAR_SERVICE1	(3)
 */
-/* Number of GATT attributes needed for the ble demo */
+/* Number of GATT attributes needed for the vim demo */
 #define NUM_GATT_ATTRIBUTES	(DEFAULT_NUM_GATT_ATTRIBUTES + NUM_APP_GATT_ATTRIBUTES)
 
-/* Number of GATT services needed for the ble demo */
+/* Number of GATT services needed for the vim demo */
 #define NUM_GATT_SERVICES	(DEFAULT_NUM_GATT_SERVICES + NUM_APP_GATT_SERVICES)
 
 /* Array size for the attribute value for OTA service */
@@ -57,7 +57,7 @@ Please make sure this value is used for configuring the related aci_gatt_add_ser
 #define OTA_ATT_VALUE_ARRAY_SIZE	(0)	/*No OTA service is used*/
 #endif
 /* Array size for the attribute value */
-#define ATT_VALUE_ARRAY_SIZE	(298 + OTA_ATT_VALUE_ARRAY_SIZE)
+#define ATT_VALUE_ARRAY_SIZE	(490 + OTA_ATT_VALUE_ARRAY_SIZE)
 
 /* Set the size of Flash security database */
 #define FLASH_SEC_DB_SIZE	(0X400)
@@ -66,7 +66,7 @@ Please make sure this value is used for configuring the related aci_gatt_add_ser
 
 
 /* Set supported max value for ATT_MTU enabled by the application. [New parameter added on BLE stack v2.x] */
-#define MAX_ATT_MTU	(64)
+#define MAX_ATT_MTU	(131)
 
 
 /* Set supported max value for attribute size: it is the biggest attribute size enabled by the application. */
